@@ -1,0 +1,74 @@
+blueprint:
+  name: Monitor if grill is lit over time 
+  description: Do something when the grill is on over a certain time threshold
+  domain: automation
+  input:
+    temp_sensor_probe1:
+      name: BBQ Probe 1
+      description: 'Temperature sensor entity - BBQ Probe 1.'
+      selector:
+        entity:
+          domain: sensor
+    temp_sensor_probe2:
+      name: BBQ Probe 2
+      description: 'Temperature sensor entity - BBQ Probe 2.'
+      selector:
+        entity:
+          domain: sensor
+    temp_sensor_probe3:
+      name: BBQ Probe 3
+      description: 'Temperature sensor entity - BBQ Probe 3.'
+      selector:
+        entity:
+          domain: sensor
+    temp_sensor_probe4:
+      name: BBQ Probe 4
+      description: 'Temperature sensor entity - BBQ Probe 4.'
+      selector:
+        entity:
+          domain: sensor
+    starting_threshold:
+      name: Starting temperature threshold
+      description: Temperature threshold above which we assume the grill is lit
+      default: 40
+      selector:
+        number:
+          min: 1.0
+          max: 200.0
+          unit_of_measurement: C
+          mode: slider
+          step: 1.0
+    starting_hysteresis:
+      name: Duration threshold
+      description: Time duration the temperature measurement has to stay above the temperature threshold
+      default: 120
+      selector:
+        number:
+          min: 15
+          max: 600
+          unit_of_measurement: min
+          mode: slider
+          step: 1.0
+    actions:
+      name: Actions
+      description: Actions (e.g. pushing a notification, TTS announcement, ...)
+      selector:
+        action: {}
+  source_url: https://raw.githubusercontent.com/Nadav-K/HA/main/monitor-grill-temp
+trigger:
+- platform: numeric_state
+  entity_id:
+    - !input 'temp_sensor_probe1'
+    - !input 'temp_sensor_probe2'
+    - !input 'temp_sensor_probe3'
+    - !input 'temp_sensor_probe4'
+  for:
+    minutes: !input 'starting_hysteresis'
+  above: !input 'starting_threshold'
+condition: []
+
+action:
+- choose: []
+  default: !input 'actions'
+mode: single
+max_exceeded: silent
